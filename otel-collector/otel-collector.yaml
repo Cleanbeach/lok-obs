@@ -1,0 +1,59 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: otel-collector
+#   labels:
+#     app: otel-collector
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: otel-collector
+#   template:
+#     metadata:
+#       labels:
+#         app: otel-collector
+#     spec:
+#       containers:
+#         - name: otel-collector
+#           image: otel/opentelemetry-collector:latest
+#           args: [
+#             "--config=/conf/config.yaml",
+#             "--log-level=debug"
+#           ]
+#           ports:
+#             - name: otel-metrics
+#               containerPort: 8888
+#             - name: otel-traces
+#               containerPort: 55678
+#           volumeMounts:
+#             - name: config-volume
+#               mountPath: /conf
+#       volumes:
+#         - name: config-volume
+#           configMap:
+#             name: otel-config
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: otel-config
+#   labels:
+#     app: otel-collector
+# data:
+#   config.yaml: |
+#     receivers:
+#       otlp:
+#         protocols:
+#           grpc:
+#     processors:
+#       batch:
+#     exporters:
+#       prometheus:
+#         endpoint: "localhost:8888"
+#     service:
+#       pipelines:
+#         traces:
+#           receivers: [otlp]
+#           processors: [batch]
+#           exporters: [prometheus]

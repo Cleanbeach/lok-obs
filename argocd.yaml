@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lok-obs
+  namespace: argocd
+spec:
+  destination:
+    server: https://my-target-cluster.com
+    namespace: default
+  source:
+    repoURL: https://github.com/Cleanbeach/lok-obs.git
+    targetRevision: main
+    path: .
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
